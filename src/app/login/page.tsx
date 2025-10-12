@@ -46,10 +46,10 @@ export default function Login(){
     return(
         <>
             <main className="flex flex-col items-center justify-center w-full min-h-screen">
-                <h1 className="text-6xl font-extrabold text-white">Gestão<span className="text-emerald-500">Dev</span></h1>
+                <h1 className="text-6xl font-extrabold">Gestão<span className="text-emerald-500">Dev</span></h1>
                 <form
                     onSubmit={handleSubmit(handleLogin)}
-                    className="w-full max-w-md p-4 bg-white rounded-md mt-7"
+                    className="w-full max-w-md p-4 bg-white border border-zinc-200 rounded-md mt-7"
                 >
                     <div className="relative mb-4">
                         <FiMail size={20} className="absolute top-3 left-3 text-zinc-400"/>
