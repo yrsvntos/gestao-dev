@@ -1,7 +1,8 @@
 "use client";
-import { FiMenu, FiHome, FiUser, FiSettings } from "react-icons/fi";
+import { FiMenu, FiHome, FiUser, FiSettings, FiUsers } from "react-icons/fi";
 import Link from "next/link";
 import clsx from "clsx";
+import { BsFillSuitcase2Fill } from "react-icons/bs";
 
 type SidebarProps = {
   isOpen: boolean;
@@ -39,6 +40,22 @@ export default function Sidebar({ isOpen, toggle }: SidebarProps) {
         >
           <FiHome size={20} />
           {isOpen && <span>Início</span>}
+        </Link>
+
+        <Link
+          href="/dashboard/colaboradores"
+          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-800 transition"
+        >
+          <FiUsers size={20} />
+          {isOpen && <span>Colaboradores</span>}
+        </Link>
+
+        <Link
+          href="/dashboard/servicos"
+          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-800 transition"
+        >
+          <BsFillSuitcase2Fill size={20} />
+          {isOpen && <span>Serviços</span>}
         </Link>
 
         <Link
