@@ -5,10 +5,14 @@ import { useForm } from "react-hook-form";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { db } from "@/services/firebaseConnection";
+import { addDoc, collection } from "firebase/firestore";
 import { BsArrowLeft } from "react-icons/bs";
-import { UserProps } from "@/utils/user";
 import InputUser from "../../components/input";
 import SelectUser from "../../components/select";
+import toast from "react-hot-toast";
+
 
 
 const userSchema = z.object({
@@ -47,7 +51,7 @@ type FormData = z.infer<typeof userSchema>
 
 
 export default function Cadastro(){
-
+    const router = useRouter();
     // Criar o formulário usando React Hook Form
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: zodResolver(userSchema), // <-- Aqui usamos o zodResolver
@@ -58,8 +62,41 @@ export default function Cadastro(){
     const optionsEstado = ["Ativo", "Inativo"];
     const optionsContrato = ["Efetivo", "Temporário", "Estagiário"];
 
-    function onSubmit(data: FormData){
-        alert("teste");
+    async function onSubmit(data: FormData){
+        
+        
+        const queryRef = collection(db, "colaboradores");
+
+        try {
+
+            const docRef = await addDoc(queryRef, {
+                nome: data.nome,
+                apelido: data.apelido,
+                email: data.email,
+                funcao: data.funcao,
+                departamento: data.departamento,
+                contrato: data.contrato,
+                estado: data.estado,
+                genero: data.genero,
+                dataNascimento: data.dataNascimento,
+                telefone: data.telefone,
+                morada: data.morada,
+                criadoEm: new Date(),
+                atualizadoEm: new Date(),
+            });
+
+            console.log(docRef)
+            
+            toast.success("Colaborador cadastrado no sistema!");
+            router.push("/dashboard/colaboradores");
+
+        } catch (error) {
+            console.log(error)
+            toast.error("Erro ao cadastrar colaborador no sistema!")
+        }
+
+
+
     }
 
     return(
@@ -67,7 +104,7 @@ export default function Cadastro(){
             <Container>
                 <div className="flex items-center justify-between flex-wrap">
                     <h2 className="text-bold text-md">Cadastrar novo colaborador.</h2>
-                    <Link href="/dashboard/usuarios" className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-500 text-white text-sm font-extrabold rounded-md px-4 py-2">
+                    <Link href="/dashboard/colaboradores" className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-500 text-white text-sm font-extrabold rounded-md px-4 py-2">
                         <BsArrowLeft size={18} color="#fff"/>
                         Voltar para colaboradores
                     </Link>
@@ -168,8 +205,8 @@ export default function Cadastro(){
                         <label  className="font-bold">Departamento</label>
                         <InputUser
                             placeholder="Digite o departamento"
-                            type="apelido"
-                            name="apelido"
+                            type="departamento"
+                            name="departamento"
                             register={register}
                             error={errors?.departamento?.message}
                         
