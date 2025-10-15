@@ -1,45 +1,75 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Metadata } from "next";
+import { db } from "@/services/firebaseConnection";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import Link from "next/link";
 import { HiUserAdd } from "react-icons/hi";
+import { FiEdit, FiTrash } from "react-icons/fi";
 import "./../../globals.css";
 
+
 interface UserProps{
-    id: number;
-    name: string;
+    id: string,
+    nome: string;
+    apelido: string;
     email: string;
-    phone: string;
+    telefone: string;
+    funcao: string;
+    departamento: string;
+    estado: string;
 }
 
 const tableHeader = [
-    "ID",
-    "Nome",
+    "Nome Completo",
     "Email",
     "Telefone",
+    "Função",
+    "Departamento",
+    "Estado",
     "Ações"
 ]
-const metadata: Metadata = {
-    title: "Dashboard - Lista de Usuários Cadastrados",
-    description: "A sua empresa no seu bolso",
-};
-
 export default function Usuarios(){
 
     const [users, setUsers] = useState<UserProps[]>([]);
     const [loading, setLoading] = useState(true)
 
-    async function getUsers() {
-        const response = await fetch("https://jsonplaceholder.typicode.com/users");
-        const users = await response.json();
-        setUsers(users);
-        setLoading(false)
-    }
 
     useEffect(() => {
         
-        getUsers()
+        async function getUsers() {
+            const getRef = collection(db, "colaboradores");
+            const queryRef = query(getRef, orderBy("criadoEm", "asc"));
+
+            getDocs(queryRef)
+            .then((snapshot) => {
+
+                let usersList = [] as UserProps[];
+
+                snapshot.forEach((doc) => {
+                    usersList.push({
+                        id: doc.id,
+                        nome: doc.data().nome,
+                        apelido: doc.data().apelido,
+                        email: doc.data().email,
+                        funcao: doc.data().funcao,
+                        departamento: doc.data().departamento,
+                        telefone: doc.data().telefone,
+                        estado: doc.data().estado
+                    })
+                })
+                setUsers(usersList);
+                setLoading(false)
+            })
+            .catch((error) => {
+                console.error("Erro ao carregar usuários:", error);
+                setLoading(false);
+            });
+            
+            
+        }
+        getUsers();
+
     }, [])
     
 
@@ -69,41 +99,53 @@ export default function Usuarios(){
                             
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="text-sm">
                         
-                            {users.length === 0 && (
-                                <p>Sem usuários cadastrados no sistema!</p>
-                            )}
-                            
-                            {users.map((user) => (
-                                <tr key={user.id} className="bg-gray-100" >
-                                    <td className="border border-gray-400 px-4 py-2">{user.id}</td>
-                                    <td className="border border-gray-400 px-4 py-2">{user.name}</td>
-                                    <td className="border border-gray-400 px-4 py-2">{user.email}</td>
-                                    <td className="border border-gray-400 px-4 py-2">{user.phone}</td>
-                                    <td className="border border-gray-400 px-4 py-2 ">
-                                        <div className="flex justify-end items-center gap-3
-                                        ">
-                                            <button
-                                            className="bg-zinc-800 hover:bg-zinc-500 text-white border-0 text-sm rounded p-2  cursor-pointer font-extrabold"
-                                        >
-                                            Editar
-                                        </button>
-                                        <button
-                                            className="bg-red-500 hover:bg-red-300 text-white rounded p-2 text-sm  transition-all cursor-pointer font-extrabold"
-                                        >
-                                            Excluir
-                                        </button>
-
-                                        </div>
-                                        
+                            {users.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="text-center font-bold py-4">
+                                        Sem usuários cadastrados no sistema!
                                     </td>
                                 </tr>
+                            ) : ( 
                                 
-                            ))}
-                            
-
-                        
+                                users.map((user) => (
+                                    <tr key={user.id} className="bg-gray-100" >
+                                        <td className="border border-gray-400 px-4 py-2">{user.nome} {user.apelido}</td>
+                                        <td className="border border-gray-400 px-4 py-2">{user.email}</td>
+                                        <td className="border border-gray-400 px-4 py-2">{user.telefone}</td>
+                                        <td className="border border-gray-400 px-4 py-2">{user.funcao}</td>
+                                        <td className="border border-gray-400 px-4 py-2">{user.departamento}</td>
+                                        <td 
+                                            className="border border-gray-400 px-4 py-2 text-center"
+                                        >
+                                            <span className={`p-1 rounded px-2 ${user.estado === "Ativo" ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>{user.estado}</span>
+                                        
+                                        </td>
+                                        <td className="border border-gray-400 px-4 py-2 ">
+                                            <div className="flex justify-end items-center gap-3
+                                            ">
+                                                <button
+                                                className="bg-zinc-800 hover:bg-zinc-500 text-white border-0 text-sm rounded p-2  cursor-pointer flex items-center gap-2"
+                                                title="Editar"
+                                            >
+                                               <FiEdit size={17} color="#fff"/>
+                                            </button>
+                                            <button
+                                                className="bg-red-500 hover:bg-red-300 text-white rounded p-2 text-sm  transition-all cursor-pointer flex items-center gap-2"
+                                                title="Excluir"
+                                            >
+                                                <FiTrash size={17} color="#fff"/>
+                                            </button>
+    
+                                            </div>
+                                            
+                                        </td>
+                                    </tr>
+                                    
+                                ))
+                                
+                            ) }
                     </tbody>
                 </table>
             </div>
