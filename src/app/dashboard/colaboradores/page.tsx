@@ -144,49 +144,50 @@ export default function Usuarios(){
                                         <td className="border border-gray-400 px-4 py-2 ">
                                             <div className="flex justify-end items-center gap-3
                                             ">
+                                                <Link
+                                                    href={`/dashboard/colaboradores/editar/${user.id}`}
+                                                    className="bg-zinc-800 hover:bg-zinc-500 text-white border-0 text-sm rounded p-2  cursor-pointer flex items-center gap-2"
+                                                    title="Editar"
+                                                >
+                                                    <FiEdit size={17} color="#fff"/>
+                                                </Link>
                                                 <button
-                                                className="bg-zinc-800 hover:bg-zinc-500 text-white border-0 text-sm rounded p-2  cursor-pointer flex items-center gap-2"
-                                                title="Editar"
-                                            >
-                                               <FiEdit size={17} color="#fff"/>
-                                            </button>
-                                            <button
-                                                onClick={() => setShowModal(true)}
-                                                
-                                                className="bg-red-500 hover:bg-red-300 text-white rounded p-2 text-sm  transition-all cursor-pointer flex items-center gap-2"
-                                                title="Excluir"
-                                            >
-                                                <FiTrash size={17} color="#fff"/>
-                                            </button>
+                                                    onClick={() => setShowModal(true)}
+                                                    
+                                                    className="bg-red-500 hover:bg-red-300 text-white rounded p-2 text-sm  transition-all cursor-pointer flex items-center gap-2"
+                                                    title="Excluir"
+                                                >
+                                                    <FiTrash size={17} color="#fff"/>
+                                                </button>
 
-                                            {showModal && (
-                                                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                                                    <div className="bg-white rounded-xl shadow-lg w-full max-w-sm p-6 animate-fadeIn">
-                                                        <div className="flex flex-col items-center">
-                                                        <h2 className="text-xl font-bold mb-1 text-center">Deseja excluir o colaborador?</h2>
-                                                        <p className="text-gray-500 text-center mb-4">
-                                                            Ao excluir este colaborador, a ação será permanente e não poderá ser revertida.
-                                                        </p>
-                                                        <div className="flex gap-3 w-full">
-                                                            <button
-                                                            onClick={() => setShowModal(false)}
-                                                            className="flex-1 py-2 border cursor-pointer rounded-md font-medium hover:bg-gray-100 transition"
-                                                            >
-                                                            Cancelar
-                                                            </button>
-                                                            <button
-                                                            onClick={() => handleDeleteUser(user)}
-                                                            className="flex-1 py-2 bg-red-500 cursor-pointer text-white rounded-md font-medium hover:bg-red-600 transition"
-                                                            >
-                                                            Excluir
-                                                            </button>
-                                                        </div>
+                                                {showModal && (
+                                                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                                                        <div className="bg-white rounded-xl shadow-lg w-full max-w-sm p-6 animate-fadeIn">
+                                                            <div className="flex flex-col items-center">
+                                                            <h2 className="text-xl font-bold mb-1 text-center">Deseja excluir o colaborador?</h2>
+                                                            <p className="text-gray-500 text-center mb-4">
+                                                                Ao excluir este colaborador, a ação será permanente e não poderá ser revertida.
+                                                            </p>
+                                                            <div className="flex gap-3 w-full">
+                                                                <button
+                                                                onClick={() => setShowModal(false)}
+                                                                className="flex-1 py-2 border cursor-pointer rounded-md font-medium hover:bg-gray-100 transition"
+                                                                >
+                                                                Cancelar
+                                                                </button>
+                                                                <button
+                                                                onClick={() => handleDeleteUser(user)}
+                                                                className="flex-1 py-2 bg-red-500 cursor-pointer text-white rounded-md font-medium hover:bg-red-600 transition"
+                                                                >
+                                                                Excluir
+                                                                </button>
+                                                            </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            )}
+                                                )}
 
-    
+        
                                             </div>
                                             
                                         </td>
