@@ -90,9 +90,6 @@ export default function Usuarios(){
         
     }
 
-    function onCancel(){
-        setShowModal(false);
-    }
     
 
 
@@ -168,11 +165,11 @@ export default function Usuarios(){
                                                         <div className="flex flex-col items-center">
                                                         <h2 className="text-xl font-bold mb-1 text-center">Deseja excluir o colaborador?</h2>
                                                         <p className="text-gray-500 text-center mb-4">
-                                                            Ao excluir um colaborador, esta ação não tem como ser revertida.
+                                                            Ao excluir este colaborador, a ação será permanente e não poderá ser revertida.
                                                         </p>
                                                         <div className="flex gap-3 w-full">
                                                             <button
-                                                            onClick={onCancel}
+                                                            onClick={() => setShowModal(false)}
                                                             className="flex-1 py-2 border cursor-pointer rounded-md font-medium hover:bg-gray-100 transition"
                                                             >
                                                             Cancelar
