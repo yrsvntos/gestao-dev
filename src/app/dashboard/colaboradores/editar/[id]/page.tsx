@@ -1,4 +1,4 @@
-import EditForm from "@/app/dashboard/components/editForm"
+import EditForm from "../../components/editForm";
 
 interface EditPageProps {
     params: Promise<{ id: string }>;
