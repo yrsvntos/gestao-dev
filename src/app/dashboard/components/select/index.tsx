@@ -20,7 +20,7 @@ export default function SelectUser({name, options, register, error, rules}: Sele
                 {...register(name, rules)}
                 
             >
-                <option value="Selecione..." disabled>Selecione...</option>
+                <option value="" disabled>Selecione...</option>
                 {options.map(opt => (
                     <option key={opt} value={opt}>{opt}</option>
                 ))}
