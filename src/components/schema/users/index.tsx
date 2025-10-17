@@ -28,8 +28,7 @@ export const userSchema = z.object({
     .regex(/^[0-9+\-\s()]+$/, "Número de telefone inválido.")
     .optional(),
     morada: z.string().optional(),
-    criadoEm: z.date().optional(),
-    atualizadoEm: z.date().optional(),
+    
 })
 
 export const optionsGenero = ["Masculino", "Feminino"];
