@@ -9,8 +9,8 @@ import { useRouter } from "next/navigation";
 import { db } from "@/services/firebaseConnection";
 import { addDoc, collection } from "firebase/firestore";
 import { BsArrowLeft } from "react-icons/bs";
-import InputUser from "../../components/input";
-import SelectUser from "../../components/select";
+import InputUser from "../components/input";
+import SelectUser from "../components/select";
 import toast from "react-hot-toast";
 
 
