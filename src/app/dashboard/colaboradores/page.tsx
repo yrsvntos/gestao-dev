@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { db } from "@/services/firebaseConnection";
 import { collection, getDocs, query, orderBy, deleteDoc, doc } from "firebase/firestore";
 import { UserProps } from "@/utils/user";
+import { formatDate } from "@/utils/user/formatDate";
+import { exportTablePDF, exportUserPDF } from "@/utils/user/exportPDF";
 import Link from "next/link";
 import { HiUserAdd } from "react-icons/hi";
 import { FiEdit, FiEye, FiTrash } from "react-icons/fi";
@@ -26,7 +28,8 @@ export default function Usuarios(){
     const [selectedUser, setSelectedUser] = useState<UserProps | null>(null);
     const [loading, setLoading] = useState(true)
     const [showModal, setShowModal] = useState(false);
-    const [showUserInfo, setShowUserInfo] = useState(false)
+    const [showUserInfo, setShowUserInfo] = useState(false);
+    
 
     
 
@@ -118,6 +121,16 @@ export default function Usuarios(){
                     Cadastrar colaborador <HiUserAdd size={18} />
                 </Link>
             </div>
+
+            {/* Novo div para botões acima da tabela */}
+            <div className="flex justify-end my-6 gap-2">
+                <button
+                onClick={() => exportTablePDF(users)}
+                className="bg-black text-white text-sm px-4 py-1 cursor-pointer rounded"
+                >
+                Exportar PDF
+                </button>
+            </div>
             
             <div className="overflow-x-auto mt-6">
                 <table className="border-collapse border-2 border-gray-500 w-full">
@@ -161,10 +174,11 @@ export default function Usuarios(){
                                                         setShowUserInfo(true)
                                                     }}
                                                     
-                                                    className="bg-slate-600 hover:bg-slate-400 text-white rounded p-2 text-sm  transition-all cursor-pointer flex items-center gap-2"
+                                                    
+                                                    className="bg-transparent rounded p-2 text-sm  transition-all  hover:bg-zinc-100 cursor-pointer flex items-center border border-bg-black gap-2"
                                                     title="Visualizar"
                                                 >
-                                                    <FiEye size={17} color="#fff"/>
+                                                    <FiEye size={17} color="#000"/>
                                                 </button>
                                                 {showUserInfo && selectedUser && (
                                                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -203,18 +217,25 @@ export default function Usuarios(){
                                                             {/* Ações */}
                                                             <div className="flex gap-3 mt-6">
                                                                 <button
+                                                                    onClick={() => selectedUser && exportUserPDF(selectedUser)}
+                                                                    className="flex-1 py-2 border rounded-md font-medium bg-black text-white cursor-pointer transition"
+                                                                >
+                                                                    Exportar PDF
+                                                                </button>
+                                                                <button
                                                                     onClick={() => setShowUserInfo(false)}
-                                                                    className="flex-1 py-2 border rounded-md font-medium hover:bg-gray-100 transition"
+                                                                    className="flex-1 py-2 border rounded-md font-medium hover:bg-zinc-100 cursor-pointer transition"
                                                                 >
                                                                     Fechar
                                                                 </button>
-                                                                <Link
+                                                                
+                                                                {/* <Link
                                                                     href={`/dashboard/colaboradores/editar/${selectedUser.id}`}
                                                                     className="bg-zinc-800 hover:bg-zinc-500 text-white border-0 text-sm rounded p-2  cursor-pointer flex items-center gap-2"
                                                                     title="Editar"
                                                                 >
                                                                     Editar
-                                                                </Link>
+                                                                </Link> */}
                                                             </div>
                                                         </div>
                                                     </div>
