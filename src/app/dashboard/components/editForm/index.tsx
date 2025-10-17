@@ -43,7 +43,7 @@ export default function EditForm({ id }: EditFormProps){
         
             if (!snapshot.exists()) {
                 toast.error("Colaborador não encontrado");
-                router.push("/");
+                router.push("/dashboard/colaboradores");
             }
         
         
