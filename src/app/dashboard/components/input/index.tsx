@@ -1,7 +1,7 @@
 
 import { RegisterOptions, UseFormRegister } from "react-hook-form"
 
-interface InputUserProps{
+interface InputProps{
     name: string,
     type: string,
     placeholder: string,
@@ -12,11 +12,11 @@ interface InputUserProps{
 
 
 
-export default function InputUser({name, type, placeholder, register, error, rules}: InputUserProps){
+export default function Input({name, type, placeholder, register, error, rules}: InputProps){
     return(
         <>
             <input 
-                className="w-full max-w-full border-2 rounded-md h-11 px-4 border-gray-200"
+                className="w-full max-w-full border-2 rounded-md h-11 p-4  border-gray-200"
                 id={name}
                 type={type}
                 placeholder={placeholder}
