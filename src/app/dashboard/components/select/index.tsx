@@ -1,7 +1,7 @@
 
 import { RegisterOptions, UseFormRegister } from "react-hook-form"
 
-export interface SelectUserProps {
+export interface SelectProps {
     name: string;
     options: string[]; // Aqui você passa ['Ativo', 'Inativo'] ou ['Masculino', 'Feminino']
     register: UseFormRegister<any>;
@@ -11,7 +11,7 @@ export interface SelectUserProps {
 
 
 
-export default function SelectUser({name, options, register, error, rules}: SelectUserProps){
+export default function Select({name, options, register, error, rules}: SelectProps){
     return(
         <>
             <select 
