@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import { db } from "@/services/firebaseConnection";
 import { collection, getDocs } from "firebase/firestore";
 import Container from "@/components/container";
-import { error } from "console";
 
 export default function Dashboard(){
     const [totalUsers, setTotalUsers] = useState<number>(0);
+    const [totalProjects, setTotalProjects] = useState<number>(0);
 
     useEffect(() => {
         async function getTotalUsers(){
@@ -15,6 +15,14 @@ export default function Dashboard(){
             setTotalUsers(snapshot.size);
         }
         getTotalUsers();
+    }, [])
+
+    useEffect(() => {
+        async function getTotalProjects(){
+            const snapshot = await getDocs(collection(db, "projectos"));
+            setTotalProjects(snapshot.size);
+        }
+        getTotalProjects();
     }, [])
 
     return(
@@ -27,7 +35,7 @@ export default function Dashboard(){
                 </div>
                 <div className="bg-white rounded-xl shadow-md p-6 text-center">
                     <h2 className="text-black text-sm font-bold">Projectos</h2>
-                    <p className="text-4xl font-bold text-zinc-800 mt-2">{totalUsers}</p>
+                    <p className="text-4xl font-bold text-zinc-800 mt-2">{totalProjects}</p>
                 </div>
                 <div className="bg-white rounded-xl shadow-md p-6 text-center">
                     <h2 className="text-black text-sm font-bold">Colaboradores</h2>
