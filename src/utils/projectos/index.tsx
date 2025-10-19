@@ -3,9 +3,11 @@ export interface ProjectosProps{
     nome: string;
     descricao?: string;
     clienteId?: string;             // referência ao cliente
-    responsavel: string;        
+    responsavel: string;  
+    departamento?: string;      
     status: "Planejado" | "Em Andamento" | "Concluído" | "Pausado";
     dataInicio: Date;
+    referencia?: string;
     dataFimPrevista?: Date;
     dataFimReal?: Date;
     valorOrcamento?: number;      
