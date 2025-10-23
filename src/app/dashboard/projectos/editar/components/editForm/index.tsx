@@ -15,6 +15,7 @@ import Select from "@/app/dashboard/components/select"
 import TextArea from "@/app/dashboard/components/textarea"
 import { BsArrowLeft } from "react-icons/bs"
 import { ProjectForm } from "@/components/schema/projectos"
+import { useUserRole } from "@/hooks/userRole"
 
 interface EditProps{
     id: string
@@ -27,6 +28,7 @@ export default function EditForm({id}: EditProps){
     const [createdAt, setCreatedAt] = useState<string | null>(null);
     const [updatedAt, setUpdatedAt] = useState<string | null>(null);
     const router = useRouter()
+    const {role} = useUserRole()
 
     const { register, handleSubmit, formState: { errors }, reset } = useForm({
         resolver    : zodResolver(projectoSchema), 
@@ -109,6 +111,27 @@ export default function EditForm({id}: EditProps){
             toast.error("Erro ao atualizar dados do projecto!");
         }
     }
+
+    if (role !== "Admin" && role !== "Editor") {
+        return (
+          <div className="flex flex-col items-center justify-center h-[calc(100vh-150px)] text-center p-6">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+              Acesso limitado
+            </h2>
+            <p className="text-gray-600 max-w-md">
+              Lamentamos, mas a sua conta não possui permissões para este módulo.
+              Se acredita que isto é um erro, entre em contacto com o administrador do sistema.
+            </p>
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="mt-6 bg-gray-800 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition"
+            >
+              Voltar ao painel
+            </button>
+          </div>
+        );
+    }
+    
     return(
         <>
             <Container>
