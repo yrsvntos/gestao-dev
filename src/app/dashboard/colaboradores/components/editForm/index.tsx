@@ -12,6 +12,7 @@ import toast from "react-hot-toast";
 import Link from "next/link";
 import { BsArrowLeft } from "react-icons/bs";
 import { useRouter } from "next/navigation";
+import { useUserRole } from "@/hooks/userRole";
 
 
 
@@ -26,6 +27,7 @@ export default function EditForm({ id }: EditFormProps){
     const [colaboradorNome, setColaboradorNome] = useState<string | null>(null);
     const [createdAt, setCreatedAt] = useState<string | null>(null);
     const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+    const {role} = useUserRole()
 
     const { register, handleSubmit, formState: { errors }, reset } = useForm({
         resolver    : zodResolver(userSchema), 
@@ -104,6 +106,26 @@ export default function EditForm({ id }: EditFormProps){
           console.log(error);
           toast.error("Erro ao atualizar colaborador!");
         }
+    }
+
+    if (role !== "Admin" && role !== "Editor") {
+        return (
+          <div className="flex flex-col items-center justify-center h-[calc(100vh-150px)] text-center p-6">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+              Acesso limitado
+            </h2>
+            <p className="text-gray-600 max-w-md">
+              Lamentamos, mas a sua conta não possui permissões para este módulo.
+              Se acredita que isto é um erro, entre em contacto com o administrador do sistema.
+            </p>
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="mt-6 bg-gray-800 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition"
+            >
+              Voltar ao painel
+            </button>
+          </div>
+        );
     }
 
     return(
