@@ -11,6 +11,7 @@ import { HiFolderAdd } from "react-icons/hi"
 import { FiEdit, FiEye, FiTrash } from "react-icons/fi"
 import { formatCurrency } from "@/utils/formatNumber"
 import { exportProjectoPDF, exportTablePDF } from "@/utils/projectos/exportPDF"
+import { useUserRole } from "@/hooks/userRole"
 
 
 
@@ -34,6 +35,7 @@ export default function Projectos(){
     const [showProjectInfo, setShowProjectInfo] = useState(false)
     const [showModal, setShowModal] = useState(false)
     const [selectedProject, setSelectedProject] = useState<ProjectosProps | null>(null)
+    const {role} = useUserRole()
 
     useEffect(() => {
 
@@ -126,12 +128,15 @@ export default function Projectos(){
         <main> 
             <div className="flex items-center justify-between">
                 <h2 className="font-bold">Projectos cadastrados no sistema</h2>
-                <Link 
-                    href="/dashboard/projectos/cadastro"
-                    className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-900 text-white text-sm font-extrabold rounded-md px-4 py-2"
-                >
-                    Cadastrar projecto <HiFolderAdd size={18} />
-                </Link>
+                {role === "Admin" || role === "Editor" && (
+                    <Link 
+                        href="/dashboard/projectos/cadastro"
+                        className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-900 text-white text-sm font-extrabold rounded-md px-4 py-2"
+                    >
+                        Cadastrar projecto <HiFolderAdd size={18} />
+                    </Link>
+                )}
+                
             </div>
 
             <div className="flex justify-end my-6 gap-2">
@@ -268,24 +273,33 @@ export default function Projectos(){
                                                         </div>
                                                     </div>
                                                 )}
-                                                <Link
-                                                    href={`/dashboard/projectos/editar/${projecto.id}`}
-                                                    className="bg-zinc-800 hover:bg-zinc-500 text-white border-0 text-sm rounded p-2  cursor-pointer flex items-center gap-2"
-                                                    title="Editar"
-                                                >
-                                                    <FiEdit size={17} color="#fff"/>
-                                                </Link>
-                                                <button
-                                                    onClick={() => {
+                                                
+                                                {(role === "Admin" || role === "Editor") && (
+                                                    <Link
+                                                        href={`/dashboard/projectos/editar/${projecto.id}`}
+                                                        className="bg-zinc-800 hover:bg-zinc-500 text-white border-0 text-sm rounded p-2  cursor-pointer flex items-center gap-2"
+                                                        title="Editar"
+                                                    >
+                                                        <FiEdit size={17} color="#fff"/>
+                                                    </Link>
+                                                    
+                                                    
+                                                )}
+
+                                                {role === "Admin" && (
+                                                    <button
+                                                        onClick={() => {
                                                         setSelectedProject(projecto)
                                                         setShowModal(true)
-                                                    }}
-                                                    
-                                                    className="bg-red-500 hover:bg-red-300 text-white rounded p-2 text-sm  transition-all cursor-pointer flex items-center gap-2"
-                                                    title="Excluir"
-                                                >
-                                                    <FiTrash size={17} color="#fff"/>
-                                                </button>
+                                                        }}
+                                             
+                                                        className="bg-red-500 hover:bg-red-300 text-white rounded p-2 text-sm  transition-all cursor-pointer flex items-center gap-2"
+                                                        title="Excluir"
+                                                    >
+                                                        <FiTrash size={17} color="#fff"/>
+                                                    </button>
+                                                )}
+                                                
 
                                                 {showModal && (
                                                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -315,7 +329,7 @@ export default function Projectos(){
                                                 )}
 
 
-                                                
+                                               
 
 
                                             </div>
@@ -330,6 +344,19 @@ export default function Projectos(){
                     </tbody>
                 </table>
             </div>
+
+            {role === "Visitante" && (
+                <div className="mt-8 text-center text-gray-500 text-sm">
+                    <p>Você tem permissão para visualizar os projetos, mas não pode adicionar ou excluir. Contacte o administrador caso precises cadastrar algum projeto no sistema. 
+                    </p>
+                </div>
+            )}
+            {role === "Editor" && (
+                <div className="mt-8 text-center text-gray-500 text-sm">
+                    <p>Você tem permissão para cadastrar e editar projetos, mas não pode excluí-los.
+                    Contacte o administrador caso precises remover algum projeto do sistema.</p>
+                </div>
+            )}
 
            
         </main>
