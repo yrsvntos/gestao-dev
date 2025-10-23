@@ -14,6 +14,7 @@ import {
 } from "react-icons/fi";
 import { MdOutlineAttachMoney } from "react-icons/md";
 import { AiOutlineBarChart } from "react-icons/ai";
+import { useUserRole } from "@/hooks/userRole";
 
 type SidebarProps = {
   isOpen: boolean;
@@ -21,18 +22,21 @@ type SidebarProps = {
 };
 
 export default function Sidebar({ isOpen, toggle }: SidebarProps) {
+  
+  const {role} = useUserRole()
   // Estados locais para controlar os submenus
   const [financeOpen, setFinanceOpen] = useState(false);
   const [reportsOpen, setReportsOpen] = useState(false);
 
+
+
   return (
     <aside
       className={clsx(
-        "bg-gray-900 text-white h-screen transition-all duration-300 flex flex-col",
+        "bg-gray-900 text-white h-screen transition-all duration-300  flex flex-col",
         isOpen ? "w-64" : "w-20"
       )}
     >
-      {/* Header */}
       <div className="relative p-4 border-b border-gray-700 flex items-center">
         <h1
           className={`text-2xl font-bold transition-opacity duration-300 ${
@@ -78,14 +82,16 @@ export default function Sidebar({ isOpen, toggle }: SidebarProps) {
           {isOpen && <span>Projectos</span>}
         </Link>
 
-        {/* Usuários */}
-        <Link
-          href="/dashboard/usuarios"
-          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-800 transition"
-        >
-          <FiUser size={20} />
-          {isOpen && <span>Usuários</span>}
-        </Link>
+        {role === "Admin" && (
+          <Link
+            href="/dashboard/usuarios"
+            className="flex items-center gap-3 px-4 py-2 hover:bg-gray-800 transition"
+          >
+            <FiUser size={20} />
+            {isOpen && <span>Usuários</span>}
+          </Link>
+        )}
+        
 
         {/* ===================== */}
         {/* Submenu: FINANCEIRO 💰 */}
@@ -178,14 +184,16 @@ export default function Sidebar({ isOpen, toggle }: SidebarProps) {
           )}
         </div>
 
-        {/* Configurações */}
-        <Link
-          href="/dashboard/config"
-          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-800 transition"
-        >
-          <FiSettings size={20} />
-          {isOpen && <span>Configurações</span>}
-        </Link>
+        {role === "Admin" && (
+          <Link
+            href="/dashboard/config"
+            className="flex items-center gap-3 px-4 py-2 hover:bg-gray-800 transition"
+          >
+            <FiSettings size={20} />
+            {isOpen && <span>Configurações</span>}
+          </Link>
+        )}
+        
       </nav>
     </aside>
   );
