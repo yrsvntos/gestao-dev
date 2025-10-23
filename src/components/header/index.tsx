@@ -1,29 +1,66 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiLogOut } from "react-icons/fi";
 import { signOut } from "firebase/auth";
+import { getDoc, doc } from "firebase/firestore";
+import { db } from "@/services/firebaseConnection";
 import { auth } from "@/services/firebaseConnection";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { onAuthStateChanged } from "firebase/auth";
+
+
+
 
 export default function Header() {
+    const [userName, setUserName] = useState<string | null>("");
     const [showModal, setShowModal] = useState(false);
     const router = useRouter();
   
+    useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          
+          if (user.displayName) {
+            setUserName(user.displayName);
+          } else {
+  
+            try {
+              const docRef = doc(db, "users", user.uid);
+              const docSnap = await getDoc(docRef);
+  
+              if (docSnap.exists()) {
+                const data = docSnap.data();
+                setUserName(data.name || "Usuário");
+              } else {
+                setUserName("Usuário");
+              }
+            } catch (err) {
+              console.error("Erro ao buscar nome:", err);
+              setUserName("Usuário");
+            }
+          }
+        } else {
+          setUserName(null);
+        }
+      });
+      return () => unsubscribe();
+    }, []);
+
     async function handleConfirmLogout() {
       try {
         await signOut(auth);
         toast.success("Sessão encerrada com sucesso!");
         setShowModal(false);
-        router.push("/login");
+        router.push("/");
       } catch (error) {
         toast.error("Erro ao encerrar sessão!");
       }
     }
 
   return (
-    <header className="flex items-center justify-between px-9 py-5 border-b border-zinc-200">
-      <h2 className="text-lg font-semibold text-gray-800"></h2>
+    <header className="flex items-center justify-between px-9 h-16.5 border-b border-zinc-200">
+      <h2 className="text-sm font-semibold text-gray-800">{userName ? `Olá, ${userName}!` : "Carregando..."}</h2>
       <button
         onClick={() => setShowModal(true)}
         className="flex items-center gap-2 text-gray-600 hover:text-red-500 transition"
