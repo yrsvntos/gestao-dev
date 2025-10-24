@@ -43,6 +43,52 @@ export function exportTablePDF(users: UserProps[]) {
     },
   });
 
+  const totalPagesExp = "{total_pages_count_string}";
+  const pageCount = (doc as any).getNumberOfPages();
+
+
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+
+    const pageHeight = doc.internal.pageSize.height;
+    const pageWidth = doc.internal.pageSize.width;
+
+    const now = new Date();
+    const dataHora =
+      now.toLocaleDateString("pt-PT") +
+      " " +
+      now.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" });
+
+    // Linha separadora acima do footer
+    doc.setDrawColor(180);
+    doc.line(14, pageHeight - 18, pageWidth - 14, pageHeight - 18);
+
+    doc.setFontSize(9);
+    doc.setTextColor(120);
+
+    // Data e hora (esquerda)
+    doc.text(`Gerado em: ${dataHora}`, 14, pageHeight - 10);
+
+    // Texto central
+    doc.text(
+      "Processado por GestãoDev - Seu Sistema Administrativo",
+      pageWidth / 1.87,
+      pageHeight - 10,
+      { align: "center" }
+    );
+
+    // Número da página (direita)
+    doc.text(
+      `Página ${i} de ${totalPagesExp}`,
+      pageWidth - -20,
+      pageHeight - 10,
+      { align: "right" }
+    );
+  }
+
+    // Atualiza o total de páginas
+    doc.putTotalPages(totalPagesExp);
+
   doc.save("colaboradores.pdf");
 }
 
@@ -62,6 +108,52 @@ export function exportUserPDF(user: UserProps) {
   doc.text(`Estado: ${user.estado || ""}`, 14, 110);
   doc.text(`Data Nascimento: ${formatDate(user.dataNascimento)}`, 14, 120);
   doc.text(`Morada: ${user.morada || ""}`, 14, 130);
+
+  const totalPagesExp = "{total_pages_count_string}";
+  const pageCount = (doc as any).getNumberOfPages();
+
+
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+
+    const pageHeight = doc.internal.pageSize.height;
+    const pageWidth = doc.internal.pageSize.width;
+
+    const now = new Date();
+    const dataHora =
+      now.toLocaleDateString("pt-PT") +
+      " " +
+      now.toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" });
+
+    // Linha separadora acima do footer
+    doc.setDrawColor(180);
+    doc.line(14, pageHeight - 18, pageWidth - 14, pageHeight - 18);
+
+    doc.setFontSize(9);
+    doc.setTextColor(120);
+
+    // Data e hora (esquerda)
+    doc.text(`Gerado em: ${dataHora}`, 14, pageHeight - 10);
+
+    // Texto central
+    doc.text(
+      "Processado por GestãoDev - Seu Sistema Administrativo",
+      pageWidth / 1.87,
+      pageHeight - 10,
+      { align: "center" }
+    );
+
+    // Número da página (direita)
+    doc.text(
+      `Página ${i} de ${totalPagesExp}`,
+      pageWidth - -20,
+      pageHeight - 10,
+      { align: "right" }
+    );
+  }
+
+    // Atualiza o total de páginas
+    doc.putTotalPages(totalPagesExp);
 
   doc.save(`${user.nome}_ficha.pdf`);
 }
