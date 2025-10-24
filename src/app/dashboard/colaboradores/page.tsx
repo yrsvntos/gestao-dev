@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { db } from "@/services/firebaseConnection";
-import { collection, getDocs, query, orderBy, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, deleteDoc, doc, Query, where } from "firebase/firestore";
 import { UserProps } from "@/utils/user";
 import { exportTablePDF, exportUserPDF } from "@/utils/user/exportPDF";
 import Link from "next/link";
@@ -29,6 +29,8 @@ export default function Usuarios(){
     const [loading, setLoading] = useState(true)
     const [showModal, setShowModal] = useState(false);
     const [showUserInfo, setShowUserInfo] = useState(false);
+    const [search, setSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
     const {role} = useUserRole();
     
 
@@ -82,6 +84,7 @@ export default function Usuarios(){
     }, [])
 
     async function handleDeleteUser(colaborador: UserProps){
+        
         const itemColaborador = colaborador;
         const getDoc = doc(db, "colaboradores", itemColaborador.id);
         await deleteDoc(getDoc)
@@ -102,6 +105,49 @@ export default function Usuarios(){
         if (timestamp.toDate) return timestamp.toDate().toLocaleDateString("pt-PT");
         return timestamp; 
     }
+
+    async function handleSearch(){
+        let q: Query = collection(db, "colaboradores");
+
+        if(statusFilter !== "all"){
+            q = query(q, where("estado", "==", statusFilter))
+        }
+
+        if (search.trim() !== "") {
+            // Firestore não tem 'LIKE', então buscamos nomes exatos ou prefixos
+            q = query(q, where("nome", ">=", search), where("nome", "<=", search + "\uf8ff"));
+        }
+
+
+        const snapshot = await getDocs(q);
+        const results: UserProps[]= snapshot.docs.map(doc => {
+            const data = doc.data();
+
+            return{
+                id: doc.id,
+                nome: data.nome || "",
+                apelido: data.apelido || "",
+                email: data.email || "",
+                funcao: data.funcao || "",
+                departamento: data.departamento || "",
+                contrato: data.contrato || "",
+                estado: data.estado || "",
+                genero: data.genero || "",
+                dataNascimento: data.nascimento || "",
+                telefone: data.telefone || "",
+                morada: data.morada || "",
+                criadoEm: data.criadoEm || "",
+                atualizadoEm: data.atualizadoEm || ""
+            }
+        })
+
+        setUsers(results);
+
+    }
+
+    useEffect(() => {
+        handleSearch()
+    }, [search, statusFilter])
       
     if(loading){
         return (
@@ -119,7 +165,7 @@ export default function Usuarios(){
                     {(role === "Admin" || role === "Editor") && (
                         <Link 
                             href="/dashboard/colaboradores/cadastro"
-                            className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-500 text-white text-sm font-extrabold rounded-md px-4 py-2"
+                            className="flex items-center gap-2 bg-black text-white text-sm font-extrabold rounded-md px-4 py-2"
                         >
                             Cadastrar colaborador <HiUserAdd size={18} />
                         </Link>
@@ -128,11 +174,31 @@ export default function Usuarios(){
            
            
             <div className="flex justify-end my-6 gap-2">
+                <div className="flex items-center flex-1 gap-2 ">
+                    <input 
+                        type="text"
+                        placeholder="Digite o nome do projeto...."
+                        className="border rounded px-3 py-1.5 w-full"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)} 
+                    
+                    />
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="border rounded px-2 py-2"
+                    >
+                        <option value="all">Todos</option>
+                        <option value="Ativo">Ativo</option>
+                        <option value="Inativo">Inativo</option>
+                    </select>
+
+                </div>
                 <button
-                onClick={() => exportTablePDF(users)}
-                className="bg-black text-white text-sm px-4 py-1 cursor-pointer rounded"
+                    onClick={() => exportTablePDF(users)}
+                    className="bg-black text-white text-sm px-4 py-1 cursor-pointer rounded"
                 >
-                Exportar PDF
+                    Exportar PDF
                 </button>
             </div>
             
@@ -151,7 +217,7 @@ export default function Usuarios(){
                             {users.length === 0 ? (
                                 <tr>
                                     <td colSpan={7} className="text-center font-bold py-4">
-                                        Sem usuários cadastrados no sistema!
+                                    {search ? `Nenhum projeto encontrado para "${search}" 🔍` : "Sem usuários cadastrados no sistema!"}
                                     </td>
                                 </tr>
                             ) : ( 
