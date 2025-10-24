@@ -113,17 +113,19 @@ export default function Usuarios(){
     }
     return(
         <main> 
-            {(role === "Admin" || role === "Editor") && (
+           
                 <div className="flex items-center justify-between">
                     <h2 className="font-bold">Colaboradores cadastrados no sistema</h2>
-                    <Link 
-                        href="/dashboard/colaboradores/cadastro"
-                        className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-500 text-white text-sm font-extrabold rounded-md px-4 py-2"
-                    >
-                        Cadastrar colaborador <HiUserAdd size={18} />
-                     </Link>
+                    {(role === "Admin" || role === "Editor") && (
+                        <Link 
+                            href="/dashboard/colaboradores/cadastro"
+                            className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-500 text-white text-sm font-extrabold rounded-md px-4 py-2"
+                        >
+                            Cadastrar colaborador <HiUserAdd size={18} />
+                        </Link>
+                    )}
                 </div>
-            )}
+           
            
             <div className="flex justify-end my-6 gap-2">
                 <button
