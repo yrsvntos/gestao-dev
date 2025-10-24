@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { db } from "@/services/firebaseConnection";
-import { getDocs, collection, query, orderBy, deleteDoc, doc } from "firebase/firestore";
+import { getDocs, collection, query, orderBy, deleteDoc, doc, where, Query } from "firebase/firestore";
 import Link from "next/link";
 import Container from "@/components/container";
 import { FiEdit, FiEye, FiTrash } from "react-icons/fi";
@@ -10,6 +10,7 @@ import { HiUserAdd } from "react-icons/hi";
 import { useUserRole } from "@/hooks/userRole";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { exportTablePDF, exportUserPDF } from "@/utils/colaboradores/exportPDF";
 
 
 interface Users{
@@ -30,6 +31,8 @@ const tableHeaders = [
 export default function Usuarios(){
 
     const [users, setUsers] = useState<Users[]>([]);
+    const [search, setSearch] = useState("");
+    const [roleFilter, setRoleFilter] = useState("all");
     const [showModal, setShowModal] = useState(false)
     const [showUserInfo, setShowUserInfo] = useState(false)
     const [loading, setLoading] = useState(true);
@@ -81,6 +84,36 @@ export default function Usuarios(){
         
     }
 
+    async function handleSearch(){
+        let q: Query = collection(db, "users");
+
+        // 🔹 se tiver filtro por role
+        if (roleFilter !== "all") {
+            q = query(q, where("role", "==", roleFilter));
+        }
+
+        if (search.trim() !== "") {
+            // Firestore não tem 'LIKE', então buscamos nomes exatos ou prefixos
+            q = query(q, where("name", ">=", search), where("name", "<=", search + "\uf8ff"));
+        }
+
+        const snapshot = await getDocs(q);
+        const results: Users[] = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                name: data.name || "",
+                email: data.email || "",
+                role: data.role || "",
+              };
+        });
+
+        setUsers(results);
+    }
+
+    useEffect(() => {
+        handleSearch()
+    }, [search, roleFilter])
 
     if(loading){
         return(
@@ -117,11 +150,40 @@ export default function Usuarios(){
                 <h2 className="font-bold">Usuários cadastrados no sistema</h2>
                 <Link 
                     href="/dashboard/usuarios/cadastro"
-                    className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-900 text-white text-sm font-extrabold rounded-md px-4 py-2"
+                    className="flex items-center gap-2 bg-black text-white text-sm font-extrabold rounded-md px-4 py-2"
                 >
                     Cadastrar usuário <HiUserAdd size={18} />
                 </Link>
             </div>
+            <div className="flex justify-between items-center my-8 gap-2">
+                <div className="flex flex-1 gap-2">
+                    <input
+                        type="text"
+                        placeholder="Pesquisar por nome..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="border rounded px-3 py-1 w-full"
+                    />
+
+                    <select
+                        value={roleFilter}
+                        onChange={(e) => setRoleFilter(e.target.value)}
+                        className="border rounded px-2 py-"
+                    >
+                        <option value="all">Todos</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Editor">Editor</option>
+                        <option value="Visitante">Visitante</option>
+                    </select>
+                </div>
+                <button
+                    onClick={() => { exportTablePDF(users)}}
+                    className="bg-black text-white text-sm px-4 py-2 cursor-pointer rounded"
+                >
+                    Exportar PDF
+                </button>
+            </div>
+            
             <div className="overflow-x-auto mt-6">
                 <table className="border-collapse border-2 border-gray-500 w-full">
                     <thead>
@@ -133,126 +195,138 @@ export default function Usuarios(){
                     </thead>
                     
                     <tbody className="text-sm">
-                        {users.map(user => (
-                            <tr key={user.id} className="bg-gray-100" >
-                                <td className="border border-gray-400 px-4 py-2">{user.name}</td>
-                                <td className="border border-gray-400 px-4 py-2">{user.email}</td>
-                                <td className="border border-gray-400 px-4 py-2">
-                                    <span 
-                                        className={`p-1 rounded px-2 
-                                            ${user.role === "Admin"
-                                                ? "bg-green-500 text-white"
-                                                : user.role === "Editor"
-                                                ? "bg-blue-500 text-white"
-                                                : "bg-gray-500 text-white"
-
-                                            }`}>{user.role}
-                                    </span>
-                                </td>
-                                <td className="border border-gray-400 px-4 py-2">
-                                    <div className="flex justify-end items-center gap-3">
-                                        <button
-                                            onClick={() => {
-                                                    setSelectedUser(user)
-                                                    setShowUserInfo(true)
-                                                }
-                                        
-                                            }
-                                            className="bg-transparent rounded p-2 text-sm  transition-all  hover:bg-zinc-100 cursor-pointer flex items-center border border-bg-black gap-2 duration-500"
-                                            title="Visualizar"
-
-                                        >
-                                            <FiEye/>
-                                        </button>
-                                        {showUserInfo && selectedUser && (
-                                           
-                                            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                                                <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 animate-fadeIn">
-                                                    
-                                                    <div className="flex flex-col items-center mb-4">
-                                                        <h2 className="text-xl font-bold text-center">{selectedUser?.name}</h2>
-                                                        <p className="text-gray-500 text-center">Detalhes do usuário</p>
-                                                    </div>
-
-                            
-                                                    <div className="grid grid-cols-1 gap-3 text-gray-700 text-sm">
-                                                        <div>
-                                                            <span className="font-semibold">Nome:</span> {selectedUser.name}
-                                                        </div>
-                                                        <div>
-                                                            <span className="font-semibold">Email:</span> {selectedUser.email}
-                                                        </div>
-                                                        <div>
-                                                            <span className="font-semibold">Nível de acesso:</span> {selectedUser.role}
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex gap-3 mt-6">
-                                                        {/* <button
-                                                            onClick={() => selectedProject &&
-                                                                exportProjectoPDF(selectedProject)
-                                                            }
-                                                            className="flex-1 py-2 border rounded-md font-medium bg-black text-white cursor-pointer transition"
-                                                        >
-                                                            Exportar PDF
-                                                        </button> */}
-                                                        <button
-                                                            onClick={() => setShowUserInfo(false)}
-                                                            className="flex-1 py-2 border rounded-md font-medium hover:bg-zinc-100 cursor-pointer transition"
-                                                        >
-                                                            Fechar
-                                                        </button>
-                                                        
-                                                        
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                        <Link 
-                                            href={`/dashboard/usuarios/editar/${user.id}`}
-                                            className="bg-zinc-800 hover:bg-zinc-500 text-white border-0 text-sm rounded p-2  cursor-pointer flex items-center gap-2 duration-500"
-                                            title="Editar"
-                                        >
-                                            <FiEdit/>
-                                        </Link>
-                                        <button
-                                            onClick={() => setShowModal(true)}
-                                            className="bg-red-500 hover:bg-red-300 text-white rounded p-2 text-sm  transition-all cursor-pointer flex items-center gap-2 duration-500"
-                                            title="Excluir"
-                                        >
-                                            <FiTrash/>
-                                        </button>
-
-                                        {showModal && (
-                                            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                                                <div className="bg-white rounded-xl shadow-lg w-full max-w-sm p-6 animate-fadeIn">
-                                                    <div className="flex flex-col items-center">
-                                                        <h2 className="text-xl font-bold mb-1 text-center">Deseja excluir o usuário?</h2>
-                                                        <p className="text-gray-500 text-center mb-4">
-                                                            Ao excluir este usuário, a ação será permanente e não poderá ser revertida.
-                                                        </p>
-                                                        <div className="flex gap-3 w-full">
-                                                            <button
-                                                            onClick={() => setShowModal(false)}
-                                                            className="flex-1 py-2 border cursor-pointer rounded-md font-medium hover:bg-gray-100 transition"
-                                                            >
-                                                            Cancelar
-                                                            </button>
-                                                            <button
-                                                            onClick={() => handleDelete(user)}
-                                                            className="flex-1 py-2 bg-red-500 cursor-pointer text-white rounded-md font-medium hover:bg-red-600 transition"
-                                                            >
-                                                            Excluir
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                    
+                        {users.length === 0 ? (
+                            <tr>
+                                <td colSpan={4} className="text-center font-bold py-4">
+                                    {
+                                        search ? `Nenhum usuário encontrado para "${search}" 🔍`
+                                        : "Sem usuários cadastrados no sistema!"
+                                    }
                                 </td>
                             </tr>
-                        ))}
+                        ):(
+
+                            users.map((user) => (
+                                <tr key={user.id} className="bg-gray-100" >
+                                    <td className="border border-gray-400 px-4 py-2">{user.name}</td>
+                                    <td className="border border-gray-400 px-4 py-2">{user.email}</td>
+                                    <td className="border border-gray-400 px-4 py-2">
+                                        <span 
+                                            className={`p-1 rounded px-2 
+                                                ${user.role === "Admin"
+                                                    ? "bg-green-500 text-white"
+                                                    : user.role === "Editor"
+                                                    ? "bg-blue-500 text-white"
+                                                    : "bg-gray-500 text-white"
+
+                                                }`}>{user.role}
+                                        </span>
+                                    </td>
+                                    <td className="border border-gray-400 px-4 py-2">
+                                        <div className="flex justify-end items-center gap-3">
+                                            <button
+                                                onClick={() => {
+                                                        setSelectedUser(user)
+                                                        setShowUserInfo(true)
+                                                    }
+                                            
+                                                }
+                                                className="bg-transparent rounded p-2 text-sm  transition-all  hover:bg-zinc-100 cursor-pointer flex items-center border border-bg-black gap-2 duration-500"
+                                                title="Visualizar"
+
+                                            >
+                                                <FiEye/>
+                                            </button>
+                                            {showUserInfo && selectedUser && (
+                                            
+                                                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                                                    <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 animate-fadeIn">
+                                                        
+                                                        <div className="flex flex-col items-center mb-4">
+                                                            <h2 className="text-xl font-bold text-center">{selectedUser?.name}</h2>
+                                                            <p className="text-gray-500 text-center">Detalhes do usuário</p>
+                                                        </div>
+
+                                
+                                                        <div className="grid grid-cols-1 gap-3 text-gray-700 text-sm">
+                                                            <div>
+                                                                <span className="font-semibold">Nome:</span> {selectedUser.name}
+                                                            </div>
+                                                            <div>
+                                                                <span className="font-semibold">Email:</span> {selectedUser.email}
+                                                            </div>
+                                                            <div>
+                                                                <span className="font-semibold">Nível de acesso:</span> {selectedUser.role}
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex gap-3 mt-6">
+                                                            <button
+                                                                onClick={() => selectedUser &&
+                                                                    exportUserPDF(selectedUser)
+                                                                }
+                                                                className="flex-1 py-2 border rounded-md font-medium bg-black text-white cursor-pointer transition"
+                                                            >
+                                                                Exportar PDF
+                                                            </button>
+                                                            <button
+                                                                onClick={() => setShowUserInfo(false)}
+                                                                className="flex-1 py-2 border rounded-md font-medium hover:bg-zinc-100 cursor-pointer transition"
+                                                            >
+                                                                Fechar
+                                                            </button>
+                                                            
+                                                            
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            <Link 
+                                                href={`/dashboard/usuarios/editar/${user.id}`}
+                                                className="bg-zinc-800 hover:bg-zinc-500 text-white border-0 text-sm rounded p-2  cursor-pointer flex items-center gap-2 duration-500"
+                                                title="Editar"
+                                            >
+                                                <FiEdit/>
+                                            </Link>
+                                            <button
+                                                onClick={() => setShowModal(true)}
+                                                className="bg-red-500 hover:bg-red-300 text-white rounded p-2 text-sm  transition-all cursor-pointer flex items-center gap-2 duration-500"
+                                                title="Excluir"
+                                            >
+                                                <FiTrash/>
+                                            </button>
+
+                                            {showModal && (
+                                                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                                                    <div className="bg-white rounded-xl shadow-lg w-full max-w-sm p-6 animate-fadeIn">
+                                                        <div className="flex flex-col items-center">
+                                                            <h2 className="text-xl font-bold mb-1 text-center">Deseja excluir o usuário?</h2>
+                                                            <p className="text-gray-500 text-center mb-4">
+                                                                Ao excluir este usuário, a ação será permanente e não poderá ser revertida.
+                                                            </p>
+                                                            <div className="flex gap-3 w-full">
+                                                                <button
+                                                                onClick={() => setShowModal(false)}
+                                                                className="flex-1 py-2 border cursor-pointer rounded-md font-medium hover:bg-gray-100 transition"
+                                                                >
+                                                                Cancelar
+                                                                </button>
+                                                                <button
+                                                                onClick={() => handleDelete(user)}
+                                                                className="flex-1 py-2 bg-red-500 cursor-pointer text-white rounded-md font-medium hover:bg-red-600 transition"
+                                                                >
+                                                                Excluir
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                        
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                     
                 </table>
