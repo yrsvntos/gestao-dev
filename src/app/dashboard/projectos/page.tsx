@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { db } from "@/services/firebaseConnection"
-import { getDocs, doc, query, orderBy, collection, deleteDoc } from "firebase/firestore"
+import { getDocs, doc, query, orderBy, collection, deleteDoc, Query, where } from "firebase/firestore"
 import { formatDate } from "@/utils/user/formatDate"
 import { ProjectosProps } from "@/utils/projectos"
 import toast from "react-hot-toast"
@@ -35,6 +35,8 @@ export default function Projectos(){
     const [showProjectInfo, setShowProjectInfo] = useState(false)
     const [showModal, setShowModal] = useState(false)
     const [selectedProject, setSelectedProject] = useState<ProjectosProps | null>(null)
+    const [search, setSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
     const {role} = useUserRole()
 
     useEffect(() => {
@@ -114,6 +116,46 @@ export default function Projectos(){
         }
     }
     
+    async function handleSearch(){
+        let q: Query = collection(db, "projectos");
+
+        if(statusFilter !== "all"){
+            q = query(q, where("status", "==", statusFilter))
+        }
+
+        if (search.trim() !== "") {
+            // Firestore não tem 'LIKE', então buscamos nomes exatos ou prefixos
+            q = query(q, where("name", ">=", search), where("name", "<=", search + "\uf8ff"));
+        }
+
+        const snapshot = await getDocs(q);
+        const results: ProjectosProps[] = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                nome: data.nome || "",
+                responsavel: data.responsavel || "",
+                descricao: data.descricao || "",
+                referencia: data.referencia || "",
+                departamento: data.departamento || "",
+                clienteId: data.clienteId || "",
+                dataInicio: data.dataInicio || "",
+                dataFimPrevista: data.dataFimPrevista || "",
+                valorOrcamento: data.valorOrcamento || "",
+                despesas: data.despesas || "",
+                receitas: data.receitas || "",
+                status: data.status || "",
+                criadoEm: data.criadoEm,
+                criadoPor: data.criadoPor
+              };
+        });
+
+        setProjectos(results)
+    }
+
+    useEffect(() => {
+        handleSearch()
+    }, [search, statusFilter])
 
     if(loading){
         return (
@@ -128,10 +170,10 @@ export default function Projectos(){
         <main> 
             <div className="flex items-center justify-between">
                 <h2 className="font-bold">Projectos cadastrados no sistema</h2>
-                {role === "Admin" || role === "Editor" && (
+                {(role === "Admin" || role === "Editor") && (
                     <Link 
                         href="/dashboard/projectos/cadastro"
-                        className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-900 text-white text-sm font-extrabold rounded-md px-4 py-2"
+                        className="flex items-center gap-2 bg-black text-white text-sm font-extrabold rounded-md px-4 py-2"
                     >
                         Cadastrar projecto <HiFolderAdd size={18} />
                     </Link>
@@ -139,10 +181,32 @@ export default function Projectos(){
                 
             </div>
 
-            <div className="flex justify-end my-6 gap-2">
+            <div className="flex items-center justify-between my-6 gap-2">
+                <div className="flex items-center flex-1 gap-2 ">
+                    <input 
+                        type="text"
+                        placeholder="Digite o nome do projeto...."
+                        className="border rounded px-3 py-1.5 w-full"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)} 
+                    
+                    />
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="border rounded px-2 py-2"
+                    >
+                        <option value="all">Todos</option>
+                        <option value="Concluído">Concluído</option>
+                        <option value="Em Andamento">Em Andamento</option>
+                        <option value="Planejado">Planejado</option>
+                        <option value="Pausado">Pausado</option>
+                    </select>
+
+                </div>
                 <button
                 onClick={() => { exportTablePDF(projectos)}}
-                className="bg-black text-white text-sm px-4 py-1 cursor-pointer rounded"
+                className="bg-black text-white text-sm px-4 py-2 cursor-pointer rounded"
                 >
                 Exportar PDF
                 </button>
@@ -163,7 +227,7 @@ export default function Projectos(){
                             {projectos.length === 0 ? (
                                 <tr>
                                     <td colSpan={9} className="text-center font-bold py-4">
-                                        Sem projectos cadastrados no sistema!
+                                        {search ? `Nenhum projeto encontrado para "${search}" 🔍` : "Sem usuários cadastrados no sistema!"}
                                     </td>
                                 </tr>
                             ) : ( 
