@@ -9,7 +9,7 @@ import { FiArrowLeft} from "react-icons/fi";
 import { contaschema, ContaForm, optionsEstado, optionsPagamento } from "@/components/schema/despesas";
 import InputConta from "../../components/input";
 import SelectConta from "../../components/select";
-import TextareaConta from "../../components/textarea/input";
+import TextareaConta from "../../components/textarea";
 import { useUserRole } from "@/hooks/userRole";
 import { db } from "@/services/firebaseConnection";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
@@ -51,6 +51,7 @@ export default function Cadastro(){
                 entidade: data.entidade,
                 valor: Number(data.valor),
                 estado: data.estado,
+                descricao: data.descricao,
                 metodoPagamento: data.metodoPagamento,
                 dataEmissao: data.dataEmissao ? Timestamp.fromDate(new Date(data.dataEmissao)) : null,
                 dataVencimento: data.dataVencimento ? Timestamp.fromDate(new Date(data.dataVencimento)) : null,
@@ -119,6 +120,17 @@ export default function Cadastro(){
                     />
                 </div>
                 <div className="my-4">
+                    <label className="font-bold">Descrição</label>
+                    <InputConta
+                        type="text"
+                        name="descricao"
+                        placeholder="Digite a descrição da despesa"
+                        register={register}
+                        error={errors.descricao?.message}
+
+                    />
+                </div>
+                <div className="my-4">
                     <label className="font-bold">Valor da despesa</label>
                     <InputConta
                         type="number"
@@ -129,7 +141,7 @@ export default function Cadastro(){
 
                     />
                 </div>
-                <div className="my-4">
+                <div className="mb-4">
                     <label className="font-bold">Estado da despesa</label>
                     <SelectConta
                         name="estado"
@@ -170,7 +182,7 @@ export default function Cadastro(){
 
                     />
                 </div>
-                <div className="mb-4 col-span-3">
+                {/* <div className="mb-4 col-span-3">
                     <label className="font-extrabold">Descrição</label>
                     <TextareaConta
                         placeholder="Digite a descrição da despesa"
@@ -178,7 +190,7 @@ export default function Cadastro(){
                         register={register}
                         error={errors.descricao?.message}
                     />
-                </div>
+                </div> */}
                 <div className="mb-4 flex col-span-3">
                     <button
                         type="submit"
