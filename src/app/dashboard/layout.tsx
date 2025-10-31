@@ -6,7 +6,12 @@ import { auth } from "@/services/firebaseConnection";
 import { onAuthStateChanged } from "firebase/auth";
 import Sidebar from "@/components/sidebar";
 import Header from "@/components/header";
+import { Metadata } from "next";
 
+const metadata: Metadata = {
+  title: "GestãoDev | Dashboard",
+  description: "O seu sistema administrativo"
+}
 
 
 export default function DashboardLayout({
