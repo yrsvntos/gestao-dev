@@ -8,11 +8,12 @@ interface InputProps{
     register: UseFormRegister<any>
     error?: string,
     rules?: RegisterOptions;
+    disable?: boolean
 }
 
 
 
-export default function Input({name, type, placeholder, register, error, rules}: InputProps){
+export default function Input({name, type, placeholder, register, error, rules, disable = false}: InputProps){
     return(
         <>
             <input 
@@ -21,6 +22,7 @@ export default function Input({name, type, placeholder, register, error, rules}:
                 type={type}
                 placeholder={placeholder}
                 {...register(name, rules)}
+                disabled={disable}
             />
             {error && <p className="text-red-500 my-1">{error}</p>}
         </>
