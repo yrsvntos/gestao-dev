@@ -8,7 +8,7 @@ import { formatCurrency } from "../formatNumber";
 export function exportTablePDF(despesas: DespesaProps[]) {
   const doc = new jsPDF();
   doc.setFontSize(18);
-  doc.text("GestãoDev - Lista de Projectos", 14, 22);
+  doc.text("GestãoDev - Lista de Despesas", 14, 22);
 
   const tableColumn = ["Entidade", "Valor", "Data de Emissão", "Data de Vencimento", "Metódo de Pagamento","Estado"];
   const tableRows: any[] = [];
