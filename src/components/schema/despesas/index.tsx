@@ -2,7 +2,7 @@ import z from "zod";
 
 export const contaschema = z.object({
     entidade: z.string().nonempty("O nome da entidade é obrigatória"),
-    valor: z.string().nonempty("O valor deve ser positivo!"),
+    valor: z.preprocess((v) => Number(v), z.number().positive("O valor deve ser positivo.")),
     estado: z.enum(["Pago", "Pendente", "Cancelada"]),
     metodoPagamento: z.enum(["Dinheiro", "Transferência",  "Cartão"]),
     dataEmissao: z
