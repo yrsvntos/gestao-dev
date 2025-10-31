@@ -1,7 +1,7 @@
 export interface DespesaProps{
     despesaId: string;
     entidade: string;
-    valor: string;
+    valor: number;
     descricao: string;
     dataVencimento?: Date;
     dataEmissao?: Date;
