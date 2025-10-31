@@ -129,12 +129,6 @@ export default function Sidebar({ isOpen, toggle }: SidebarProps) {
               >
                 Receitas
               </Link>
-              <Link
-                href="/dashboard/financeiro/contas"
-                className="block px-3 py-1 hover:bg-gray-800 rounded"
-              >
-                Contas a Pagar / Receber
-              </Link>
             </div>
           )}
         </div>
