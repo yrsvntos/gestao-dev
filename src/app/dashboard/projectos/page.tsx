@@ -227,7 +227,7 @@ export default function Projectos(){
                             {projectos.length === 0 ? (
                                 <tr>
                                     <td colSpan={9} className="text-center font-bold py-4">
-                                        {search ? `Nenhum projeto encontrado para "${search}" 🔍` : "Sem usuários cadastrados no sistema!"}
+                                        {search ? `Nenhum projeto encontrado para "${search}" 🔍` : "Sem projectos cadastrados no sistema!"}
                                     </td>
                                 </tr>
                             ) : ( 
