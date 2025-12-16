@@ -4,6 +4,7 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, db } from "@/services/firebaseConnection";
 import { setDoc, doc } from "firebase/firestore";
 import Link from "next/link";
+import { schema, role, UserForm } from "@/components/schema/colaboradores";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import z from "zod";
@@ -16,16 +17,7 @@ import SelectUser from "../../colaboradores/components/select";
 import { useState } from "react";
 
 
-export const role = ["Admin", "Editor", "Visitante"]
 
-const schema = z.object({
-    name: z.string().min(2, "O nome deve conter no minímo 2 caracteres!").nonempty("O campo de nome é obrigatório!"),
-    email: z.string().email("Insira um e-mail válido").nonempty("O campo de email é obrigatório!"),
-    password: z.string().min(6, "A password deve conter no minímo 6 caracteres!").nonempty("O campo da password é obrigatório!"),
-    role: z.enum(["Admin", "Editor", "Visitante"]).refine((val) => ["Admin", "Editor", "Visitante"].includes(val), {message: "Escolha inválida!"} )
-})
-
-type UserForm = z.infer<typeof schema>
 
 export default function Cadastro(){
     const router = useRouter()
