@@ -1,5 +1,5 @@
 export interface UserProps {
-    id?: number | string;
+    id?: string;
     nome: string;
     apelido?: string;
     email: string;
