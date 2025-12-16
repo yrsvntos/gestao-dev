@@ -288,14 +288,27 @@ export default function Usuarios(){
                                                 <FiEdit/>
                                             </Link>
                                             <button
-                                                onClick={() => setShowModal(true)}
+                                                onClick={() => {
+                                                    setSelectedUser(user)
+                                                    setShowModal(true)
+                                                  }}
                                                 className="bg-red-500 hover:bg-red-300 text-white rounded p-2 text-sm  transition-all cursor-pointer flex items-center gap-2 duration-500"
                                                 title="Excluir"
                                             >
                                                 <FiTrash/>
                                             </button>
 
-                                            {showModal && (
+                                            
+                                        </div>
+                                        
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                    
+                </table>
+                {showModal && selectedUser &&(
                                                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                                                     <div className="bg-white rounded-xl shadow-lg w-full max-w-sm p-6 animate-fadeIn">
                                                         <div className="flex flex-col items-center">
@@ -311,7 +324,7 @@ export default function Usuarios(){
                                                                 Cancelar
                                                                 </button>
                                                                 <button
-                                                                onClick={() => handleDelete(user)}
+                                                                onClick={() => handleDelete(selectedUser)}
                                                                 className="flex-1 py-2 bg-red-500 cursor-pointer text-white rounded-md font-medium hover:bg-red-600 transition"
                                                                 >
                                                                 Excluir
@@ -321,15 +334,6 @@ export default function Usuarios(){
                                                     </div>
                                                 </div>
                                             )}
-                                        </div>
-                                        
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                    
-                </table>
             </div>
         </Container>
     );
