@@ -7,7 +7,7 @@ import { BsArrowLeft } from "react-icons/bs"
 import Link from "next/link"
 import Input from "../input"
 import SelectUser from "@/app/dashboard/colaboradores/components/select"
-import z from "zod"
+import { schema, role, UserForm } from "@/components/schema/colaboradores/edit";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
@@ -26,16 +26,7 @@ interface User{
     role: string;
 }
 
-export const role = ["Admin", "Editor", "Visitante"]
 
-const schema = z.object({
-    name: z.string().min(2, "O nome deve conter no minímo 2 caracteres!").nonempty("O campo de nome é obrigatório!"),
-    email: z.string().email("Insira um e-mail válido").nonempty("O campo de email é obrigatório!"),
-    password: z.string().min(6, "A password deve conter no minímo 6 caracteres!").nonempty("O campo da password é obrigatório!"),
-    role: z.enum(["Admin", "Editor", "Visitante"]).refine((val) => ["Admin", "Editor", "Visitante"].includes(val), {message: "Escolha inválida!"} )
-})
-
-type UserForm = z.infer<typeof schema>
 
 export default function EditForm({id}: EditProps){
 
@@ -74,7 +65,6 @@ export default function EditForm({id}: EditProps){
             reset({
                 name: data?.name,
                 email: data?.email,
-                password: data?.password,
                 role: data?.role
             })
 
@@ -129,7 +119,8 @@ export default function EditForm({id}: EditProps){
             </div>
                 
                 <form
-                    onSubmit={handleSubmit(onUpdate)}
+                    onSubmit={handleSubmit(onUpdate, (errors) => {
+                        console.log("Erros de validação:", errors);})}
                     className="bg-white p-5 rounded-md grid md:grid-cols-2 sm:grid-cols-1 lg:grid-cols-3 gap-3 mt-2"
                 >
                     <div className="my-4">
