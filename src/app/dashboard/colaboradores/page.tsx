@@ -83,14 +83,19 @@ export default function Usuarios(){
 
     }, [])
 
+    
+
     async function handleDeleteUser(colaborador: UserProps){
-        
-        const itemColaborador = colaborador;
-        const getDoc = doc(db, "colaboradores", itemColaborador.id);
+        if (!colaborador.id) {
+            toast.error("ID do colaborador inválido!");
+            return;
+          }
+
+        const getDoc = doc(db, "colaboradores", colaborador.id);
         await deleteDoc(getDoc)
         .then(() => {
             toast.success("Colaborador excluído com sucesso!");
-            setUsers(users.filter(colaborador => colaborador.id !== itemColaborador.id));
+            setUsers(users.filter(c => c.id !== colaborador.id));
             setShowModal(false);
         })
         .catch((error) => {
